@@ -1,10 +1,31 @@
 const canv = document.getElementById('canvas');
 const context = canv.getContext('2d');
-
+context.font = '30px serif';
 canv.width = 1000;
-canv.height = 700;
+canv.height = 1000;
+
+context.lineWidth = 1;
+context.strokeStyle = 'black';
+context.strokeRect(300, 700, 570, 250);
+context.stroke();
 
 const sizeOfCell = 35;
+
+function outputMessage(str, x = 410, y = 800) {
+  if (str === 'Ваш ход' ) {
+    context.font = '60px serif';
+  }
+
+  context.fillStyle = 'black'; 
+  context.fillText(str, x, y);
+  context.fillStyle = 'white';
+}
+
+function clearMessage() {
+  context.strokeStyle = 'white';
+  context.fillStyle = 'white';
+  context.fillRect(305, 705, 560, 240);
+}
 
 function drawField(startX, startY) {
   context.beginPath();
@@ -32,54 +53,52 @@ function drawField(startX, startY) {
   }
 }
 
-const unchosenShips = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
-const unchosenCompShips = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
-
-const beginShip = {
-  x: undefined,
-  y: undefined,
-};
-const endShip = {
-  x: undefined,
-  y: undefined,
-};
-
 function drawCross(cellX, cellY, player) {
-  context.beginPath();
-  context.lineWidth = 5;
-  context.strokeStyle = 'red';
-  let originX = player.originX;
-  let originY = player.originY;
-  context.moveTo(originX + sizeOfCell * cellX + 5, originY + sizeOfCell * cellY + 5);
-  context.lineTo(originX + sizeOfCell * (cellX + 1) - 5, originY + sizeOfCell * (cellY + 1) - 5);
-  context.moveTo(originX + sizeOfCell * (cellX + 1) - 5, originY + sizeOfCell * cellY + 5);
-  context.lineTo(originX + sizeOfCell * cellX + 5, originY + sizeOfCell * (cellY + 1) - 5);
-  context.stroke();
+  if (cellX > 0 && cellX < 11 && cellY > 0 && cellY < 11) {
+    
+    context.beginPath();
+    let originX = player.originX;
+    let originY = player.originY;
+    context.moveTo(originX + sizeOfCell * cellX + 5, originY + sizeOfCell * cellY + 5);
+    context.lineTo(originX + sizeOfCell * (cellX + 1) - 5, originY + sizeOfCell * (cellY + 1) - 5);
+    context.moveTo(originX + sizeOfCell * (cellX + 1) - 5, originY + sizeOfCell * cellY + 5);
+    context.lineTo(originX + sizeOfCell * cellX + 5, originY + sizeOfCell * (cellY + 1) - 5);
+    context.lineWidth = 5;
+    context.strokeStyle = 'red';
+    context.stroke();
+  }
 }
 
 function drawPoint(cellX, cellY, player) {
-  context.beginPath();
-  context.strokeStyle = 'blue';
-  let originX = player.originX;
-  let originY = player.originY;
-  context.fillStyle = 'blue';
-  context.arc(originX + sizeOfCell * cellX + 17, originY + sizeOfCell * cellY + 17, 7, 0, Math.PI * 2, false);
-  context.stroke();
-  context.fill();
+  if (cellX > 0 && cellX < 11 && cellY > 0 && cellY < 11) {
+    context.beginPath();
+    context.lineWidth = 2;
+    context.strokeStyle = 'blue';
+    let originX = player.originX;
+    let originY = player.originY;
+    context.fillStyle = 'blue';
+    context.arc(originX + sizeOfCell * cellX + 17, originY + sizeOfCell * cellY + 17, 7, 0, Math.PI * 2, false);
+    context.stroke();
+    context.fill();
+  }
 }
 
 class Ship {
-  constructor(startX, startY, dir, length) {
+  constructor(startX, startY, endX, endY, direction, length) {
     this.length = length;
-    this.direction = dir;
+    this.startX = startX;
+    this.startY = startY;
+    this.endX = endX;
+    this.endY = endY;
+    this.direction = direction;
     this.alive = true;
     this.coordsX = [];
     this.coordsY = [];
     this.cells = new Array(length).fill(1);
     for (let i = 0; i < length; i++) {
-      if (dir) {
-        this.coordsY[i] = startY;
+      if (direction) {
         this.coordsX[i] = startX + i;
+        this.coordsY[i] = startY;
       } else {
         this.coordsX[i] = startX;
         this.coordsY[i] = startY + i;
@@ -89,7 +108,6 @@ class Ship {
 
   isAlive() {
     return this.cells.includes(1);
-
   }
 
   findByCoord(x, y) {
@@ -103,7 +121,7 @@ class Ship {
 
   damage(x, y) {
     let ind;
-    if (this.dir) {
+    if (this.direction) {
       ind = this.coordsX.indexOf(x);
     } else {
       ind = this.coordsY.indexOf(y);
@@ -159,40 +177,39 @@ class Fleet {
           arrayShips.pop();
       }
     } else {
-      return [false, `Корабль данное длины нельзя размещать. 
-      Вам доступны корабли с длинами: ${arrayShips}`];
+      return [false, 'Корабль данной длины нельзя размещать.'];
     }
 
     switch (length) {
       case 1: 
         for (let i = 0; i < 4; i++) {
           if (this.allShips[i] === undefined) {
-            this.allShips[i] = new Ship(startCellX, startCellY, direction, 1);
+            this.allShips[i] = new Ship(startCellX, startCellY, endCellX, endCellY, direction, 1);
             break;
           }
         }
-        break;
+      break;
       case 2:
           for (let i = 4; i < 7; i++) {
             if (this.allShips[i] === undefined) {
-              this.allShips[i] = new Ship(startCellX, startCellY, direction, 2);
+              this.allShips[i] = new Ship(startCellX, startCellY, endCellX, endCellY, direction, 2);
               break;
             }
           }
-          break;
+      break;
       case 3:
           for (let i = 7; i < 9; i++) {
             if (this.allShips[i] === undefined) {
-              this.allShips[i] = new Ship(startCellX, startCellY, direction, 3);
+              this.allShips[i] = new Ship(startCellX, startCellY, endCellX, endCellY, direction, 3);
               break;
             }
           }
-          break;
+      break;
       case 4:
           if (this.allShips[9] === undefined) {
-            this.allShips[9] = new Ship(startCellX, startCellY, direction, 4);
+            this.allShips[9] = new Ship(startCellX, startCellY, endCellX, endCellY, direction, 4);
           }
-          break;
+      break;
     }
 
     if (direction) {
@@ -219,62 +236,86 @@ class Fleet {
     return [true];
   }
 
+  isAliveShips() {
+    for (let i = 0; i < 10; i++) {
+      if (this.allShips[i] === undefined) {
+        continue;
+      }
+      let alive = this.allShips[i].isAlive();
+      if (alive) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   killShip(index, ship) {
-    let startCellX = ship.startCellX;
-    let startCellY = ship.startCellY;
+    let startCellX = ship.startX;
+    let startCellY = ship.startY;
     let direction = ship.direction;
-    let endCellX = ship.endCellX;
-    let endCellY = ship.endCellY;
+    let endCellX = ship.endX;
+    let endCellY = ship.endY;
     this.killedShips.push(this.allShips[index]);
     this.allShips[index].alive = false;
+
     if (direction) {
       for (let k = startCellX; k < endCellX + 1; k++) {
         this.coordinateShips[startCellY - 1][k] = 3;
         this.coordinateShips[startCellY + 1][k] = 3;
-        drawCross(k, startCellY - 1, this.opponent);
-        drawCross(k, startCellY + 1, this.opponent);
+        drawPoint(k, startCellY - 1, this);
+        drawPoint(k, startCellY + 1, this);
       };
       for (let t = startCellY - 1; t < startCellY + 2; t++) {
         this.coordinateShips[t][startCellX - 1] = 3;
         this.coordinateShips[t][endCellX + 1] = 3;
-        drawCross(startCellX - 1,t, this.opponent);
-        drawCross(endCellX + 1, t, this.opponent);
+        drawPoint(startCellX - 1,t, this);
+        drawPoint(endCellX + 1, t, this);
       }
     } else {
       for (let i = startCellY; i < endCellY + 1; i++) {
         this.coordinateShips[i][startCellX - 1] = 3;
         this.coordinateShips[i][startCellX + 1] = 3;
-        drawCross(startCellX - 1, i, this.opponent);
-        drawCross(endCellX + 1, i, this.opponent);
+        drawPoint(startCellX - 1, i, this);
+        drawPoint(endCellX + 1, i, this);
       };
       for (let y = startCellX - 1; y < startCellX + 2; y++) {
         this.coordinateShips[startCellY - 1][y] = 3;
         this.coordinateShips[endCellY + 1][y] = 3;
-        drawCross(y, startCellY - 1, this.opponent);
-        drawCross(y, endCellY + 1, this.opponent);
+        drawPoint(y, startCellY - 1, this);
+        drawPoint(y, endCellY + 1, this);
       }
     }
   }
 
   shoot(x, y) {
-    if (this.coordinateShips[y][x] != 1) {
-      drawPoint(x, y, this.opponent);
-      return [false];
+    if (this.coordinateShips[y][x] !== 1) {
+        if (this.coordinateShips[y][x] !== 3) {      
+        drawPoint(x, y, this);
+        this.coordinateShips[y][x] = 3;
+        return [false];
+      } else {
+        return [false];
+      }
     } else {
       let ship;
-      for (let index = 0; index < 10; index++) {
+      let index;
+      for (index = 0; index < 10; index++) {
         let result = this.allShips[index].findByCoord(x, y);
         if (result) {
           ship = this.allShips[index];
-          ship.damage(x, y);
-          drawCross(x, y, this.opponent);
-          this.coordinateShips[y][x] = 3;
-          if (!ship.isAlive()) {
-            this.killShip(index, ship);
-          } 
+          break;
         }
       }
-      return [true, ship.alive];
+
+      ship.damage(x, y);
+      drawCross(x, y, this);
+      this.coordinateShips[y][x] = 3;
+
+      if (!ship.isAlive()) {
+        this.killShip(index, ship);
+      }
+
+      return [true, ship.isAlive()];
     }
   }
 }
@@ -285,10 +326,19 @@ function coordinateAtField(coor) {
   return [numberOfCellX, numberOfCellY];
 }
 
+function cellAtEnemyField(x, y) {
+  let numberOfCellX = Math.floor((x - 570) / sizeOfCell);  
+  let numberOfCellY = Math.floor((y - 70) / sizeOfCell);
+  return [numberOfCellX, numberOfCellY];
+}
+
 function click(e) {
   let clickX = e.clientX;
   let clickY = e.clientY;
-  if (clickX > 410 && clickX < 610 && clickY > 510 && clickY < 660) {
+  if (clickX > 390 && clickX < 830 && clickY > 520 && clickY < 660) {
+    context.fillStyle = 'white';
+    context.strokeStyle = 'white';
+    context.fillRect(375, 505, 500, 160);
     game();
   }
 }
@@ -301,7 +351,6 @@ function mousemove(e) {
   };
 }
 
-
 function mousedown(e) {
   if (onField) {
     beginShip.x = e.clientX;
@@ -312,8 +361,9 @@ function mousedown(e) {
   }
 }
 
-
 function mouseup(c) {
+  clearMessage();
+  outputMessage('Расставьте корабли');
   if (onField) {
     endShip.x = c.clientX;
     endShip.y = c.clientY;
@@ -353,7 +403,12 @@ function mouseup(c) {
         context.fillStyle = 'black';
         context.fillRect(beginCellX * sizeOfCell + 70, beginCellY * sizeOfCell + 70, widthShip * sizeOfCell, heightShip * sizeOfCell);
       } else {
-        console.log(check[1]);
+        clearMessage();
+        outputMessage(check[1], 330, 800);
+        if (check[1] === 'Корабль данной длины нельзя размещать.') {
+          outputMessage(`Вам доступны корабли с длинами:`, 330, 850);
+          outputMessage(`${unchosenShips}`, 330, 900);
+        }
       }
     }
   }
@@ -362,19 +417,20 @@ function mouseup(c) {
     canv.removeEventListener('mousemove', mousemove);
     canv.removeEventListener('mousedown', mousedown);
     canv.removeEventListener('mouseup', mouseup);
-    context.strokeRect(400, 500, 200, 150);
-    context.stroke();
-    context.font = '30px serif';
-    context.fillText('Начать битву', 410, 535);
+    clearMessage();
+    context.fillStyle = 'black';
+    context.strokeStyle = 'black';
+    context.strokeRect(380, 510, 450, 150);
+    context.fillText(`Нажмите сюда, чтобы начать битву`, 400, 575);
     canv.addEventListener('mousedown', click);
   }
 }
-
 
 function drawShips() {
   canv.addEventListener('mousemove', mousemove);
   canv.addEventListener('mousedown', mousedown);
   canv.addEventListener('mouseup', mouseup);
+  outputMessage('Расставьте корабли');
 }
 
 function randomArrangeShips() {
@@ -398,50 +454,151 @@ function onEnemyField(e) {
   }
 }
 
-function choose(c) {
-  canv.removeEventListener('mousedown', choose);
-  console.log(c.clientX, c.clientY);
-  console.log('Ваш ход');
-  if (allowShoot) {
-    let x = c.clientX;
-    let y = c.clientY;
-    let [cellX, cellY] = coordinateAtField({x, y});
-    let cell = computerShips.coordinateShips[cellY][cellX];
-    let resultOfShoot = computerShips.shoot(cellX, cellY);
-    if (cell == 3) {
-      choose();
-    } else {
-      if (resultOfShoot[0]) {
-        choose();
+function choosePlayer(x, y) {
+  let chooseX = x;
+  let chooseY = y;
+  let cell = computerShips.coordinateShips[chooseY][chooseX];
+  let resultOfShoot = computerShips.shoot(chooseX, chooseY);
+  if (cell == 3) {
+    return;
+  } else {
+    if (resultOfShoot[0]) {
+      if (!computerShips.isAliveShips()) {
+        canv.removeEventListener('mousedown', move);
+        clearMessage();
+        outputMessage('Вы победили');
+        return;
       }
+      clearMessage();
+      outputMessage('Ваш ход', 480, 820);
+      return;
+    } else {
+      clearMessage();
+      outputMessage('Ход компьютера', 390, 830);
+      canv.removeEventListener('mousedown', move);
+      setTimeout(chooseComputer, delay);
     }
   }
-  if (c.clientX === undefined) {
-    choose();
-  }
-  canv.removeEventListener('click', choose);
-  chooseComputer();
 }
 
 function chooseComputer() {
-  console.log('Ход компьютера');
-  let randomX = Math.floor(Math.random() * 10 + 1);
-  let randomY = Math.floor(Math.random() * 10 + 1);
-  let resultOfShoot = myShips.shoot(randomX, randomY);
-  let cell = myShips.coordinateShips[randomY][randomX];
+  if (rand === 1) {
+    shootX = Math.floor(Math.random() * 10 + 1);
+    shootY = Math.floor(Math.random() * 10 + 1);
+  } 
+
+  if (shootX > 10 || shootX < 1 || shootY > 10 || shootY < 1) {
+    algorithmShootComp('false');
+    chooseComputer();
+    return;
+  }
+
+  let cell = myShips.coordinateShips[shootY][shootX];
+  let resultOfShoot = myShips.shoot(shootX, shootY);
+  
   if (cell == 3) {
+    algorithmShootComp('false');
     chooseComputer();
   } else {
     if (resultOfShoot[0]) {
-      chooseComputer();
+      rand = 0;
+      algorithmShootComp('true', shootX, shootY);
+      if (!myShips.isAliveShips()) {
+        end = true;
+        canv.removeEventListener('mousedown', move);
+        canv.removeEventListener('mousemove', onEnemyField);
+        clearMessage();
+        outputMessage('Вы проиграли');
+        return;
+      } else {
+        setTimeout(chooseComputer, delay);
+      }
+      if (!resultOfShoot[1]) {
+        rand = 1;
+        algorithmShootComp('delete');
+      }
+    } else {
+      algorithmShootComp('false');
+      clearMessage();
+      outputMessage('Ваш ход', 480, 820);
+      if (!end) {
+        canv.addEventListener('mousedown', move);
+      }
+      return;
     }
   }
-  choose();
 }
-
 
 function game() {
   canv.removeEventListener('mousedown', click);
-  canv.addEventListener('mousedown', choose);
+  canv.addEventListener('mousedown', move);
   canv.addEventListener('mousemove', onEnemyField);
+  clearMessage();
+  outputMessage('Ваш ход', 480, 820);
+}
+
+function move(c) {
+  if (allowShoot) {
+    let x = c.offsetX;
+    let y = c.offsetY;
+    [x, y] = cellAtEnemyField(x, y);
+    choosePlayer(x, y);
+  }
+}
+
+function algorithmShootComp(str, hitX, hitY) {
+  if (str === 'true') {
+    lastHit[0] = hitX;
+    lastHit[1] = hitY;
+    if (firstHit.length === 0) {
+      firstHit[0] = hitX;
+      firstHit[1] = hitY;
+    } else {
+      if (hitX === firstHit[0]) {
+        directs[0] = false;
+        directs[2] = false;
+      } else {
+        directs[1] = false;
+        directs[3] = false;
+      }
+    }
+  }
+
+  if (str === 'delete') {
+    lastHit = [];
+    firstHit = [];
+    directs = [true, true, true, true];
+  }
+
+  if (rand === 0) {
+    if (str === 'false') {
+      for (let index = 0; index < 4; index++) {
+        if (directs[index]) {
+          lastHit[0] = firstHit[0];
+          lastHit[1] = firstHit[1];
+          directs[index] = false;
+          break;
+        }
+      }
+    }
+  }
+  
+  switch (true) {
+    case directs[0]:
+      shootX = lastHit[0] + 1;
+      shootY = lastHit[1];
+      break;
+    case directs[1]:
+        shootX = lastHit[0];
+        shootY = lastHit[1] - 1;
+      break;
+    case directs[2]:
+      shootX = lastHit[0] - 1;
+      shootY = lastHit[1];
+      break;
+    case directs[3]:
+      shootX = lastHit[0];
+      shootY = lastHit[1] + 1;
+      break;
+  }
 }
