@@ -8,6 +8,9 @@ context.lineWidth = 1;
 context.strokeStyle = 'black';
 context.strokeRect(300, 700, 570, 250);
 context.stroke();
+context.font = '30px serif';
+context.fillText('Ваше поле', 190, 30, 200);
+context.fillText('Поле противника', 660, 30, 300);
 
 const sizeOfCell = 35;
 const delay = 700;
@@ -386,6 +389,7 @@ function mousedown(e) {
 function mouseup(c) {
   clearMessage();
   outputMessage('Расставьте корабли');
+  outputMessage('на вашем поле', 410, 840);
   if (onField) {
     endShip.x = c.clientX;
     endShip.y = c.clientY;
@@ -453,6 +457,7 @@ function drawShips() {
   canv.addEventListener('mousedown', mousedown);
   canv.addEventListener('mouseup', mouseup);
   outputMessage('Расставьте корабли');
+  outputMessage('на вашем поле', 410, 840);
 }
 
 function randomArrangeShips() {
