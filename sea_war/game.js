@@ -1,3 +1,4 @@
+'use strict';
 const canv = document.getElementById('canvas');
 const context = canv.getContext('2d');
 context.font = '30px serif';
@@ -37,11 +38,11 @@ const endShip = {
 let onField = true;
 
 function outputMessage(str, x = 410, y = 800) {
-  if (str === 'Ваш ход' ) {
+  if (str === 'Ваш ход') {
     context.font = '60px serif';
   }
 
-  context.fillStyle = 'black'; 
+  context.fillStyle = 'black';
   context.fillText(str, x, y);
   context.fillStyle = 'white';
 }
@@ -65,13 +66,13 @@ function drawField(startX, startY) {
   }
   context.stroke();
 
-  let arrayLetters = 'АБВГДЕЖЗИЙ';
+  const arrayLetters = 'АБВГДЕЖЗИЙ';
   context.font = '27px serif';
 
   for (let i = 0; i < 10; i++) {
-    let letter = arrayLetters[i];
+    const letter = arrayLetters[i];
     context.fillText(letter, startX + (i + 1.2) * sizeOfCell, startY + 23);
-  } 
+  }
 
   for (let i = 1; i < 11; i++) {
     context.fillText(i, startX + 5, startY + (i + 0.7) * sizeOfCell);
@@ -80,14 +81,18 @@ function drawField(startX, startY) {
 
 function drawCross(cellX, cellY, player) {
   if (cellX > 0 && cellX < 11 && cellY > 0 && cellY < 11) {
-    
+
     context.beginPath();
-    let originX = player.originX;
-    let originY = player.originY;
-    context.moveTo(originX + sizeOfCell * cellX + 5, originY + sizeOfCell * cellY + 5);
-    context.lineTo(originX + sizeOfCell * (cellX + 1) - 5, originY + sizeOfCell * (cellY + 1) - 5);
-    context.moveTo(originX + sizeOfCell * (cellX + 1) - 5, originY + sizeOfCell * cellY + 5);
-    context.lineTo(originX + sizeOfCell * cellX + 5, originY + sizeOfCell * (cellY + 1) - 5);
+    const originX = player.originX;
+    const originY = player.originY;
+    context.moveTo(originX + sizeOfCell * cellX + 5,
+      originY + sizeOfCell * cellY + 5);
+    context.lineTo(originX + sizeOfCell * (cellX + 1) - 5,
+      originY + sizeOfCell * (cellY + 1) - 5);
+    context.moveTo(originX + sizeOfCell * (cellX + 1) - 5,
+      originY + sizeOfCell * cellY + 5);
+    context.lineTo(originX + sizeOfCell * cellX + 5,
+      originY + sizeOfCell * (cellY + 1) - 5);
     context.lineWidth = 5;
     context.strokeStyle = 'red';
     context.stroke();
@@ -99,10 +104,11 @@ function drawPoint(cellX, cellY, player) {
     context.beginPath();
     context.lineWidth = 2;
     context.strokeStyle = 'blue';
-    let originX = player.originX;
-    let originY = player.originY;
+    const originX = player.originX;
+    const originY = player.originY;
     context.fillStyle = 'blue';
-    context.arc(originX + sizeOfCell * cellX + 17, originY + sizeOfCell * cellY + 17, 7, 0, Math.PI * 2, false);
+    context.arc(originX + sizeOfCell * cellX + 17,
+      originY + sizeOfCell * cellY + 17, 7, 0, Math.PI * 2, false);
     context.stroke();
     context.fill();
   }
@@ -137,7 +143,7 @@ class Ship {
 
   findByCoord(x, y) {
     for (let i = 0; i < this.length; i++) {
-      if (this.coordsX[i] == x && this.coordsY[i] == y) {
+      if (this.coordsX[i] === x && this.coordsY[i] === y) {
         return true;
       }
     }
@@ -167,15 +173,22 @@ class Fleet {
     this.originY = originY;
     this.coordinateShips = new Array(12);
     for (let i = 0; i < 12; i++) {
-      this.coordinateShips[i] = new Array(12).fill(0);                    // matrix of ship arrangment: 0 - empty cell; 1 - ship; 2 - cell near with ship
-    }                          
+      this.coordinateShips[i] = new Array(12).fill(0);
+    }
   }
+  /*
 
-  addNewShip(startCellX, startCellY, direction, length, arrayShips) {                       // direction:  0 - vertically; 1 - horizontally;
-    let index = arrayShips.indexOf(length);
+  matrix of ship arrangment: 0 - empty cell; 1 - ship; 2 - cell near with ship
+
+  */
+  addNewShip(startCellX, startCellY,
+    direction, length, arrayShips) {
+    const index = arrayShips.indexOf(length);
     let endCellX;
     let endCellY;
-    
+
+    //direction:  0 - vertically; 1 - horizontally;
+
     if (direction) {
       endCellX = startCellX + length - 1;
       endCellY = startCellY;
@@ -183,57 +196,61 @@ class Fleet {
       endCellX = startCellX;
       endCellY = startCellY + length - 1;
     }
-    
-    if(endCellX > 10 || endCellY > 10) {
+
+    if (endCellX > 10 || endCellY > 10) {
       return [false];
     }
-    
-    let checkTouchStart = this.coordinateShips[startCellY][startCellX];
 
-    let checkTouchEnd = this.coordinateShips[endCellY][endCellX];
+    const checkTouchStart = this.coordinateShips[startCellY][startCellX];
+
+    const checkTouchEnd = this.coordinateShips[endCellY][endCellX];
 
     if (checkTouchStart > 0 || checkTouchEnd > 0) {
       return [false, 'Корабли не должны соприкасаться'];
     }
     if (index > -1) {
-        if (arrayShips === unchosenShips) {
-          let lastShip = arrayShips.length - 1;
-          arrayShips[index] = arrayShips[lastShip];
-          arrayShips.pop();
+      if (arrayShips === unchosenShips) {
+        const lastShip = arrayShips.length - 1;
+        arrayShips[index] = arrayShips[lastShip];
+        arrayShips.pop();
       }
     } else {
       return [false, 'Корабль данной длины нельзя размещать.'];
     }
 
     switch (length) {
-      case 1: 
-        for (let i = 0; i < 4; i++) {
-          if (this.allShips[i] === undefined) {
-            this.allShips[i] = new Ship(startCellX, startCellY, endCellX, endCellY, direction, 1);
-            break;
-          }
+    case 1:
+      for (let i = 0; i < 4; i++) {
+        if (this.allShips[i] === undefined) {
+          this.allShips[i] = new Ship(startCellX, startCellY,
+            endCellX, endCellY, direction, 1);
+          break;
         }
+      }
       break;
-      case 2:
-          for (let i = 4; i < 7; i++) {
-            if (this.allShips[i] === undefined) {
-              this.allShips[i] = new Ship(startCellX, startCellY, endCellX, endCellY, direction, 2);
-              break;
-            }
-          }
+    case 2:
+      for (let i = 4; i < 7; i++) {
+        if (this.allShips[i] === undefined) {
+          this.allShips[i] = new Ship(startCellX, startCellY,
+            endCellX, endCellY, direction, 2);
+          break;
+        }
+      }
       break;
-      case 3:
-          for (let i = 7; i < 9; i++) {
-            if (this.allShips[i] === undefined) {
-              this.allShips[i] = new Ship(startCellX, startCellY, endCellX, endCellY, direction, 3);
-              break;
-            }
-          }
+    case 3:
+      for (let i = 7; i < 9; i++) {
+        if (this.allShips[i] === undefined) {
+          this.allShips[i] = new Ship(startCellX, startCellY,
+            endCellX, endCellY, direction, 3);
+          break;
+        }
+      }
       break;
-      case 4:
-          if (this.allShips[9] === undefined) {
-            this.allShips[9] = new Ship(startCellX, startCellY, endCellX, endCellY, direction, 4);
-          }
+    case 4:
+      if (this.allShips[9] === undefined) {
+        this.allShips[9] = new Ship(startCellX, startCellY,
+          endCellX, endCellY, direction, 4);
+      }
       break;
     }
 
@@ -266,7 +283,7 @@ class Fleet {
       if (this.allShips[i] === undefined) {
         continue;
       }
-      let alive = this.allShips[i].isAlive();
+      const alive = this.allShips[i].isAlive();
       if (alive) {
         return true;
       }
@@ -275,11 +292,11 @@ class Fleet {
   }
 
   killShip(index, ship) {
-    let startCellX = ship.startX;
-    let startCellY = ship.startY;
-    let direction = ship.direction;
-    let endCellX = ship.endX;
-    let endCellY = ship.endY;
+    const startCellX = ship.startX;
+    const startCellY = ship.startY;
+    const direction = ship.direction;
+    const endCellX = ship.endX;
+    const endCellY = ship.endY;
     this.killedShips.push(this.allShips[index]);
     this.allShips[index].alive = false;
 
@@ -293,7 +310,7 @@ class Fleet {
       for (let t = startCellY - 1; t < startCellY + 2; t++) {
         this.coordinateShips[t][startCellX - 1] = 3;
         this.coordinateShips[t][endCellX + 1] = 3;
-        drawPoint(startCellX - 1,t, this);
+        drawPoint(startCellX - 1, t, this);
         drawPoint(endCellX + 1, t, this);
       }
     } else {
@@ -314,7 +331,7 @@ class Fleet {
 
   shoot(x, y) {
     if (this.coordinateShips[y][x] !== 1) {
-        if (this.coordinateShips[y][x] !== 3) {      
+      if (this.coordinateShips[y][x] !== 3) {
         drawPoint(x, y, this);
         this.coordinateShips[y][x] = 3;
         return [false];
@@ -325,7 +342,7 @@ class Fleet {
       let ship;
       let index;
       for (index = 0; index < 10; index++) {
-        let result = this.allShips[index].findByCoord(x, y);
+        const result = this.allShips[index].findByCoord(x, y);
         if (result) {
           ship = this.allShips[index];
           break;
@@ -345,21 +362,30 @@ class Fleet {
   }
 }
 
+const myShips = new Fleet(70, 70);
+const computerShips = new Fleet(570, 70, myShips);
+
+myShips.opponent = computerShips;
+myShips.originX = 70;
+myShips.originY = 70;
+computerShips.originX = 570;
+computerShips.originY = 70;
+
 function coordinateAtField(coor) {
-  let numberOfCellX = Math.floor((coor.x - 80) / sizeOfCell);  
-  let numberOfCellY = Math.floor((coor.y - 80) / sizeOfCell);
+  const numberOfCellX = Math.floor((coor.x - 80) / sizeOfCell);
+  const numberOfCellY = Math.floor((coor.y - 80) / sizeOfCell);
   return [numberOfCellX, numberOfCellY];
 }
 
 function cellAtEnemyField(x, y) {
-  let numberOfCellX = Math.floor((x - 570) / sizeOfCell);  
-  let numberOfCellY = Math.floor((y - 70) / sizeOfCell);
+  const numberOfCellX = Math.floor((x - 570) / sizeOfCell);
+  const numberOfCellY = Math.floor((y - 70) / sizeOfCell);
   return [numberOfCellX, numberOfCellY];
 }
 
 function click(e) {
-  let clickX = e.clientX;
-  let clickY = e.clientY;
+  const clickX = e.clientX;
+  const clickY = e.clientY;
   if (clickX > 390 && clickX < 830 && clickY > 520 && clickY < 660) {
     context.fillStyle = 'white';
     context.strokeStyle = 'white';
@@ -369,7 +395,8 @@ function click(e) {
 }
 
 function mousemove(e) {
-  if (e.clientY < 465 && e.clientX < 465 && e.clientY >= 115 && e.clientX >=115) {
+  if (e.clientY < 465 && e.clientX < 465 &&
+  e.clientY >= 115 && e.clientX >= 115) {
     onField = true;
   } else {
     onField = false;
@@ -398,15 +425,15 @@ function mouseup(c) {
     let [endCellX, endCellY] = coordinateAtField(endShip);
 
     if (endCellX < beginCellX) {
-      let a = endCellX;
+      const a = endCellX;
       endCellX = beginCellX;
-      beginCellX = a; 
+      beginCellX = a;
     }
 
     if (endCellY < beginCellY) {
-      let a = endCellY;
+      const a = endCellY;
       endCellY = beginCellY;
-      beginCellY = a; 
+      beginCellY = a;
     }
 
     const widthShip = endCellX - beginCellX + 1;
@@ -423,23 +450,26 @@ function mouseup(c) {
     }
 
     if (widthShip < 2 || heightShip < 2) {
-      let direction = (beginCellX == endCellX) ? 0 : 1;
-      let check = myShips.addNewShip(beginCellX, beginCellY, direction, length, unchosenShips );
+      const direction = (beginCellX === endCellX) ? 0 : 1;
+      const check = myShips.addNewShip(beginCellX, beginCellY,
+        direction, length, unchosenShips);
       if (check[0]) {
         context.fillStyle = 'black';
-        context.fillRect(beginCellX * sizeOfCell + 70, beginCellY * sizeOfCell + 70, widthShip * sizeOfCell, heightShip * sizeOfCell);
+        context
+          .fillRect(beginCellX * sizeOfCell + 70, beginCellY * sizeOfCell + 70,
+            widthShip * sizeOfCell, heightShip * sizeOfCell);
       } else {
         clearMessage();
         outputMessage(check[1], 330, 800);
         if (check[1] === 'Корабль данной длины нельзя размещать.') {
-          outputMessage(`Вам доступны корабли с длинами:`, 330, 850);
+          outputMessage('Вам доступны корабли с длинами:', 330, 850);
           outputMessage(`${unchosenShips}`, 330, 900);
         }
       }
     }
   }
 
-  if (unchosenShips.length == 0) {
+  if (unchosenShips.length === 0) {
     canv.removeEventListener('mousemove', mousemove);
     canv.removeEventListener('mousedown', mousedown);
     canv.removeEventListener('mouseup', mouseup);
@@ -447,7 +477,7 @@ function mouseup(c) {
     context.fillStyle = 'black';
     context.strokeStyle = 'black';
     context.strokeRect(380, 510, 450, 150);
-    context.fillText(`Нажмите сюда, чтобы начать битву`, 400, 575);
+    context.fillText('Нажмите сюда, чтобы начать битву', 400, 575);
     canv.addEventListener('mousedown', click);
   }
 }
@@ -462,19 +492,22 @@ function drawShips() {
 
 function randomArrangeShips() {
   for (let index = 0; index < 10; index++) {
-    let randX = Math.floor(Math.random() * 10 + 1);
-    let randY = Math.floor(Math.random() * 10 + 1);
-    let randDirection = Math.round(Math.random());
-    let check = computerShips.addNewShip(randX, randY, randDirection, unchosenCompShips[index], unchosenCompShips);
+    const randX = Math.floor(Math.random() * 10 + 1);
+    const randY = Math.floor(Math.random() * 10 + 1);
+    const randDirection = Math.round(Math.random());
+    const check = computerShips.addNewShip(randX, randY, randDirection,
+      unchosenCompShips[index], unchosenCompShips);
+
     if (!check[0]) {
-      index--; 
+      index--;
     }
   }
 }
 
 let allowShoot;
 function onEnemyField(e) {
-  if (e.clientX > 615 && e.clientX < 965 && e.clientY > 115 && e.clientY < 465) {
+  if (e.clientX > 615 && e.clientX < 965 &&
+  e.clientY > 115 && e.clientY < 465) {
     allowShoot = true;
   } else {
     allowShoot = false;
@@ -482,13 +515,14 @@ function onEnemyField(e) {
 }
 
 function choosePlayer(x, y) {
-  let chooseX = x;
-  let chooseY = y;
-  let cell = computerShips.coordinateShips[chooseY][chooseX];
-  let resultOfShoot = computerShips.shoot(chooseX, chooseY);
-  if (cell == 3) {
+  const chooseX = x;
+  const chooseY = y;
+  const cell = computerShips.coordinateShips[chooseY][chooseX];
+  const resultOfShoot = computerShips.shoot(chooseX, chooseY);
+  if (cell === 3) {
     return;
-  } else {
+  }
+  if (cell !== 3) {
     if (resultOfShoot[0]) {
       if (!computerShips.isAliveShips()) {
         canv.removeEventListener('mousedown', move);
@@ -512,7 +546,7 @@ function chooseComputer() {
   if (rand === 1) {
     shootX = Math.floor(Math.random() * 10 + 1);
     shootY = Math.floor(Math.random() * 10 + 1);
-  } 
+  }
 
   if (shootX > 10 || shootX < 1 || shootY > 10 || shootY < 1) {
     algorithmShootComp('false');
@@ -520,13 +554,14 @@ function chooseComputer() {
     return;
   }
 
-  let cell = myShips.coordinateShips[shootY][shootX];
-  let resultOfShoot = myShips.shoot(shootX, shootY);
-  
-  if (cell == 3) {
+  const cell = myShips.coordinateShips[shootY][shootX];
+  const resultOfShoot = myShips.shoot(shootX, shootY);
+
+  if (cell === 3) {
     algorithmShootComp('false');
     chooseComputer();
-  } else {
+  }
+  if (cell !== 3) {
     if (resultOfShoot[0]) {
       rand = 0;
       algorithmShootComp('true', shootX, shootY);
@@ -580,14 +615,12 @@ function algorithmShootComp(str, hitX, hitY) {
     if (firstHit.length === 0) {
       firstHit[0] = hitX;
       firstHit[1] = hitY;
+    } else if (hitX === firstHit[0]) {
+      directs[0] = false;
+      directs[2] = false;
     } else {
-      if (hitX === firstHit[0]) {
-        directs[0] = false;
-        directs[2] = false;
-      } else {
-        directs[1] = false;
-        directs[3] = false;
-      }
+      directs[1] = false;
+      directs[3] = false;
     }
   }
 
@@ -609,24 +642,24 @@ function algorithmShootComp(str, hitX, hitY) {
       }
     }
   }
-  
+
   switch (true) {
-    case directs[0]:
-      shootX = lastHit[0] + 1;
-      shootY = lastHit[1];
-      break;
-    case directs[1]:
-        shootX = lastHit[0];
-        shootY = lastHit[1] - 1;
-      break;
-    case directs[2]:
-      shootX = lastHit[0] - 1;
-      shootY = lastHit[1];
-      break;
-    case directs[3]:
-      shootX = lastHit[0];
-      shootY = lastHit[1] + 1;
-      break;
+  case directs[0]:
+    shootX = lastHit[0] + 1;
+    shootY = lastHit[1];
+    break;
+  case directs[1]:
+    shootX = lastHit[0];
+    shootY = lastHit[1] - 1;
+    break;
+  case directs[2]:
+    shootX = lastHit[0] - 1;
+    shootY = lastHit[1];
+    break;
+  case directs[3]:
+    shootX = lastHit[0];
+    shootY = lastHit[1] + 1;
+    break;
   }
 }
 
@@ -634,13 +667,5 @@ drawField(70, 70);
 drawField(570, 70);
 drawShips();
 
-const myShips = new Fleet(70, 70);
-const computerShips = new Fleet(570, 70, myShips);
-
-myShips.opponent = computerShips;
-myShips.originX = 70;
-myShips.originY = 70;
-computerShips.originX = 570;
-computerShips.originY = 70;
 
 randomArrangeShips(computerShips);
