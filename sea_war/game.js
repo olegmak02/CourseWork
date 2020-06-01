@@ -651,6 +651,8 @@ function algorithmShootComp(str, hitX, hitY) {
   case directs[1]:
     shootX = lastHit[0];
     shootY = lastHit[1] - 1;
+    shootX = lastHit[0];
+    shootY = lastHit[1] - 1;
     break;
   case directs[2]:
     shootX = lastHit[0] - 1;
@@ -669,3 +671,4 @@ drawShips();
 
 
 randomArrangeShips(computerShips);
+
