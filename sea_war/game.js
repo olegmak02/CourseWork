@@ -1,3 +1,4 @@
+'use strict';
 const canv = document.getElementById('canvas');
 const context = canv.getContext('2d');
 context.font = '30px serif';
@@ -37,7 +38,7 @@ const endShip = {
 let onField = true;
 
 function outputMessage(str, x = 410, y = 800) {
-  if (str === 'Ваш ход' ) {
+  if (str === 'Ваш ход') {
     context.font = '60px serif';
   }
 
@@ -609,24 +610,24 @@ function algorithmShootComp(str, hitX, hitY) {
       }
     }
   }
-  
+
   switch (true) {
-    case directs[0]:
-      shootX = lastHit[0] + 1;
-      shootY = lastHit[1];
-      break;
-    case directs[1]:
-        shootX = lastHit[0];
-        shootY = lastHit[1] - 1;
-      break;
-    case directs[2]:
-      shootX = lastHit[0] - 1;
-      shootY = lastHit[1];
-      break;
-    case directs[3]:
+  case directs[0]:
+    shootX = lastHit[0] + 1;
+    shootY = lastHit[1];
+    break;
+  case directs[1]:
       shootX = lastHit[0];
-      shootY = lastHit[1] + 1;
-      break;
+      shootY = lastHit[1] - 1;
+    break;
+  case directs[2]:
+    shootX = lastHit[0] - 1;
+    shootY = lastHit[1];
+    break;
+  case directs[3]:
+    shootX = lastHit[0];
+    shootY = lastHit[1] + 1;
+    break;
   }
 }
 
@@ -644,3 +645,4 @@ computerShips.originX = 570;
 computerShips.originY = 70;
 
 randomArrangeShips(computerShips);
+
