@@ -1,25 +1,28 @@
 {
-  "name": "CourseWork",
-  "version": "1.0.0",
-  "private": true,
-  "description": "The Battleship game",
-  "author": "Makarytskyi Oleh <olleglion02@gmail.com>",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/olegmak02/CourseWork.git"
-  },
-  "keywords": [
-    "game",
-    "battleship",
-    "coursework"
-  ],
-  "main": "game.js",
-  "scripts": {
-    "lint": "eslint ."
-  },
-  "homepage": "https://github.com/olegmak02/CourseWork",
-  "devDependencies": {
-    "eslint": "^7.0.0"
-  },
+   "name":"CourseWork",
+   "version":"1.0.0",
+   "private":true,
+   "description":"The Battleship game",
+   "author":"Makarytskyi Oleh <olleglion02@gmail.com>",
+   "license":"MIT",
+   "repository":{
+      "type":"git",
+      "url":"git+https://github.com/olegmak02/CourseWork.git"
+   },
+   "keywords":[
+      "game",
+      "battleship",
+      "coursework"
+   ],
+   "main":"game.js",
+   "scripts":{
+      "lint":"eslint sea_war/game.js"
+   },
+   "bugs":{
+      "url":"https://github.com/olegmak02/CourseWork/issues"
+   },
+   "homepage":"https://github.com/olegmak02/CourseWork",
+   "devDependencies":{
+      "eslint":"^7.0.0"
+   }
 }
