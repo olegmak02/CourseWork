@@ -3,12 +3,14 @@ Description
   This is game 'The Battleship'.
 
 
+
 Usage
   1) Clone this repository.
   2) Run file battleship.html using browser.
 
 
 Test
+  
   For testing the code in file game.js using ESLint you should run 'npm run lint' in terminal.
 
 
