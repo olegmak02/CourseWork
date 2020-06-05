@@ -1,20 +1,18 @@
-DESCRIPTION
-
+##DESCRIPTION
 This is game 'The Battleship'.
 
 
 
-USAGE
+##USAGE
   1) Clone this repository.
   2) Run file battleship.html using browser.
 
 
-TEST
-  
+##TEST 
 For testing the code in file game.js using ESLint you should run 'npm run lint' in terminal.
 
 
-FEATURES
+##FEATURES
   1) using HTML for run this game in browser
   2) using element <canvas> for drawing graphics in browser
   3) using browser events
