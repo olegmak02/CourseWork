@@ -13,15 +13,31 @@ context.font = '30px serif';
 context.fillText('Ваше поле', 190, 30, 200);
 context.fillText('Поле противника', 660, 30, 300);
 
-const sizeOfCell = 35;
-const delay = 700;
+const SIZE_OF_CELL = 35;
+const DELAY = 700;
 let end = false;
 let rand = 1;
 let directs = [true, true, true, true];
+
 let firstHit = [];
 let lastHit = [];
+
 let shootX;
 let shootY;
+
+const START_BORDER_X = 390;
+const END_BORDER_X = 830;
+const START_BORDER_Y = 520;
+const END_BORDER_Y = 660;
+
+const MESSAGE_X = 410;
+const MESSAGE_Y = 800;
+
+const MOVE_MESSAGE_X = 480;
+const MOVE_MESSAGE_Y = 820;
+
+const ERROR_MESSAGE_X = 330;
+const ERROR_MESSAGE_Y = 800;
 
 const unchosenShips = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
 const unchosenCompShips = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
@@ -37,7 +53,7 @@ const endShip = {
 
 let onField = true;
 
-function outputMessage(str, x = 410, y = 800) {
+function outputMessage(str, x = MESSAGE_X, y = MESSAGE_Y) {
   if (str === 'Ваш ход') {
     context.font = '60px serif';
   }
@@ -56,13 +72,13 @@ function clearMessage() {
 function drawField(startX, startY) {
   context.beginPath();
   for (let i = 1; i < 12; i++) {
-    context.moveTo(startX + i * sizeOfCell, startY);
-    context.lineTo(startX + i * sizeOfCell, startY + sizeOfCell * 11);
+    context.moveTo(startX + i * SIZE_OF_CELL, startY);
+    context.lineTo(startX + i * SIZE_OF_CELL, startY + SIZE_OF_CELL * 11);
   }
   context.stroke();
   for (let i = 1; i < 12; i++) {
-    context.moveTo(startX, startY + i * sizeOfCell);
-    context.lineTo(startX + sizeOfCell * 11, startY + i * sizeOfCell);
+    context.moveTo(startX, startY + i * SIZE_OF_CELL);
+    context.lineTo(startX + SIZE_OF_CELL * 11, startY + i * SIZE_OF_CELL);
   }
   context.stroke();
 
@@ -71,11 +87,11 @@ function drawField(startX, startY) {
 
   for (let i = 0; i < 10; i++) {
     const letter = arrayLetters[i];
-    context.fillText(letter, startX + (i + 1.2) * sizeOfCell, startY + 23);
+    context.fillText(letter, startX + (i + 1.2) * SIZE_OF_CELL, startY + 23);
   }
 
   for (let i = 1; i < 11; i++) {
-    context.fillText(i, startX + 5, startY + (i + 0.7) * sizeOfCell);
+    context.fillText(i, startX + 5, startY + (i + 0.7) * SIZE_OF_CELL);
   }
 }
 
@@ -85,14 +101,14 @@ function drawCross(cellX, cellY, player) {
     context.beginPath();
     const originX = player.originX;
     const originY = player.originY;
-    context.moveTo(originX + sizeOfCell * cellX + 5,
-      originY + sizeOfCell * cellY + 5);
-    context.lineTo(originX + sizeOfCell * (cellX + 1) - 5,
-      originY + sizeOfCell * (cellY + 1) - 5);
-    context.moveTo(originX + sizeOfCell * (cellX + 1) - 5,
-      originY + sizeOfCell * cellY + 5);
-    context.lineTo(originX + sizeOfCell * cellX + 5,
-      originY + sizeOfCell * (cellY + 1) - 5);
+    context.moveTo(originX + SIZE_OF_CELL * cellX + 5,
+      originY + SIZE_OF_CELL * cellY + 5);
+    context.lineTo(originX + SIZE_OF_CELL * (cellX + 1) - 5,
+      originY + SIZE_OF_CELL * (cellY + 1) - 5);
+    context.moveTo(originX + SIZE_OF_CELL * (cellX + 1) - 5,
+      originY + SIZE_OF_CELL * cellY + 5);
+    context.lineTo(originX + SIZE_OF_CELL * cellX + 5,
+      originY + SIZE_OF_CELL * (cellY + 1) - 5);
     context.lineWidth = 5;
     context.strokeStyle = 'red';
     context.stroke();
@@ -107,8 +123,8 @@ function drawPoint(cellX, cellY, player) {
     const originX = player.originX;
     const originY = player.originY;
     context.fillStyle = 'blue';
-    context.arc(originX + sizeOfCell * cellX + 17,
-      originY + sizeOfCell * cellY + 17, 7, 0, Math.PI * 2, false);
+    context.arc(originX + SIZE_OF_CELL * cellX + 17,
+      originY + SIZE_OF_CELL * cellY + 17, 7, 0, Math.PI * 2, false);
     context.stroke();
     context.fill();
   }
@@ -151,12 +167,7 @@ class Ship {
   }
 
   damage(x, y) {
-    let ind;
-    if (this.direction) {
-      ind = this.coordsX.indexOf(x);
-    } else {
-      ind = this.coordsY.indexOf(y);
-    }
+    let ind = this.direction ? this.coordsX.indexOf(x) :  this.coordsY.indexOf(y);
     this.coordsX[ind] = 0;
     this.coordsY[ind] = 0;
     this.cells[ind] = 0;
@@ -176,11 +187,9 @@ class Fleet {
       this.coordinateShips[i] = new Array(12).fill(0);
     }
   }
-  /*
 
-  matrix of ship arrangment: 0 - empty cell; 1 - ship; 2 - cell near with ship
+  //matrix of ship arrangment: 0 - empty cell; 1 - ship; 2 - cell near with ship
 
-  */
   addNewShip(startCellX, startCellY,
     direction, length, arrayShips) {
     const index = arrayShips.indexOf(length);
@@ -372,21 +381,37 @@ computerShips.originX = 570;
 computerShips.originY = 70;
 
 function coordinateAtField(coor) {
-  const numberOfCellX = Math.floor((coor.x - 80) / sizeOfCell);
-  const numberOfCellY = Math.floor((coor.y - 80) / sizeOfCell);
+  const numberOfCellX = Math.floor((coor.x - 80) / SIZE_OF_CELL);
+  const numberOfCellY = Math.floor((coor.y - 80) / SIZE_OF_CELL);
   return [numberOfCellX, numberOfCellY];
 }
 
 function cellAtEnemyField(x, y) {
-  const numberOfCellX = Math.floor((x - 570) / sizeOfCell);
-  const numberOfCellY = Math.floor((y - 70) / sizeOfCell);
+  const numberOfCellX = Math.floor((x - 570) / SIZE_OF_CELL);
+  const numberOfCellY = Math.floor((y - 70) / SIZE_OF_CELL);
   return [numberOfCellX, numberOfCellY];
+}
+
+function between(coordinate, min, max) {
+  return coordinate > min && coordinate < max;
+}
+
+function aboveField(x, y) {
+  return between(x, 615, 965) && between(y, 115, 465);
+}
+
+function aboveMessage(x, y) {
+  return between(x, 390, 830) && between(y, 520, 660);
+}
+
+function aboveMyField(x, y) {
+  return between(x, 115, 465) && between(y, 115, 465);
 }
 
 function click(e) {
   const clickX = e.clientX;
   const clickY = e.clientY;
-  if (clickX > 390 && clickX < 830 && clickY > 520 && clickY < 660) {
+  if (aboveMessage(clickX, clickY)) {
     context.fillStyle = 'white';
     context.strokeStyle = 'white';
     context.fillRect(375, 505, 500, 160);
@@ -395,8 +420,7 @@ function click(e) {
 }
 
 function mousemove(e) {
-  if (e.clientY < 465 && e.clientX < 465 &&
-  e.clientY >= 115 && e.clientX >= 115) {
+  if (aboveMyField(e.clientX, e.clientY)) {
     onField = true;
   } else {
     onField = false;
@@ -416,7 +440,7 @@ function mousedown(e) {
 function mouseup(c) {
   clearMessage();
   outputMessage('Расставьте корабли');
-  outputMessage('на вашем поле', 410, 840);
+  outputMessage('на вашем поле', MESSAGE_X, MESSAGE_Y + 40);
   if (onField) {
     endShip.x = c.clientX;
     endShip.y = c.clientY;
@@ -439,15 +463,7 @@ function mouseup(c) {
     const widthShip = endCellX - beginCellX + 1;
     const heightShip = endCellY - beginCellY + 1;
 
-    let length;
-
-    if (widthShip > heightShip) {
-      length = widthShip;
-    } else if (heightShip > widthShip) {
-      length = heightShip;
-    } else {
-      length = 1;
-    }
+    let length = (widthShip > heightShip) ? widthShip : (heightShip > widthShip) ? heightShip : 1;
 
     if (widthShip < 2 || heightShip < 2) {
       const direction = (beginCellX === endCellX) ? 0 : 1;
@@ -456,14 +472,14 @@ function mouseup(c) {
       if (check[0]) {
         context.fillStyle = 'black';
         context
-          .fillRect(beginCellX * sizeOfCell + 70, beginCellY * sizeOfCell + 70,
-            widthShip * sizeOfCell, heightShip * sizeOfCell);
+          .fillRect(beginCellX * SIZE_OF_CELL + 70, beginCellY * SIZE_OF_CELL + 70,
+            widthShip * SIZE_OF_CELL, heightShip * SIZE_OF_CELL);
       } else {
         clearMessage();
-        outputMessage(check[1], 330, 800);
+        outputMessage(check[1], ERROR_MESSAGE_X, ERROR_MESSAGE_Y);
         if (check[1] === 'Корабль данной длины нельзя размещать.') {
-          outputMessage('Вам доступны корабли с длинами:', 330, 850);
-          outputMessage(`${unchosenShips}`, 330, 900);
+          outputMessage('Вам доступны корабли с длинами:', ERROR_MESSAGE_X, ERROR_MESSAGE_Y + 50);
+          outputMessage(`${unchosenShips}`, ERROR_MESSAGE_X, ERROR_MESSAGE_Y + 100);
         }
       }
     }
@@ -487,7 +503,7 @@ function drawShips() {
   canv.addEventListener('mousedown', mousedown);
   canv.addEventListener('mouseup', mouseup);
   outputMessage('Расставьте корабли');
-  outputMessage('на вашем поле', 410, 840);
+  outputMessage('на вашем поле', MESSAGE_X, MESSAGE_Y + 40);
 }
 
 function randomArrangeShips() {
@@ -504,10 +520,11 @@ function randomArrangeShips() {
   }
 }
 
+
 let allowShoot;
+
 function onEnemyField(e) {
-  if (e.clientX > 615 && e.clientX < 965 &&
-  e.clientY > 115 && e.clientY < 465) {
+  if (aboveField(e.clientX, e.clientY)) {
     allowShoot = true;
   } else {
     allowShoot = false;
@@ -519,9 +536,11 @@ function choosePlayer(x, y) {
   const chooseY = y;
   const cell = computerShips.coordinateShips[chooseY][chooseX];
   const resultOfShoot = computerShips.shoot(chooseX, chooseY);
+
   if (cell === 3) {
     return;
   }
+
   if (cell !== 3) {
     if (resultOfShoot[0]) {
       if (!computerShips.isAliveShips()) {
@@ -531,13 +550,13 @@ function choosePlayer(x, y) {
         return;
       }
       clearMessage();
-      outputMessage('Ваш ход', 480, 820);
+      outputMessage('Ваш ход', MOVE_MESSAGE_X, MOVE_MESSAGE_Y);
       return;
     } else {
       clearMessage();
       outputMessage('Ход компьютера', 390, 830);
       canv.removeEventListener('mousedown', move);
-      setTimeout(chooseComputer, delay);
+      setTimeout(chooseComputer, DELAY);
     }
   }
 }
@@ -573,7 +592,7 @@ function chooseComputer() {
         outputMessage('Вы проиграли');
         return;
       } else {
-        setTimeout(chooseComputer, delay);
+        setTimeout(chooseComputer, DELAY);
       }
       if (!resultOfShoot[1]) {
         rand = 1;
@@ -582,7 +601,7 @@ function chooseComputer() {
     } else {
       algorithmShootComp('false');
       clearMessage();
-      outputMessage('Ваш ход', 480, 820);
+      outputMessage('Ваш ход', MOVE_MESSAGE_X, MOVE_MESSAGE_Y);
       if (!end) {
         canv.addEventListener('mousedown', move);
       }
@@ -596,7 +615,7 @@ function game() {
   canv.addEventListener('mousedown', move);
   canv.addEventListener('mousemove', onEnemyField);
   clearMessage();
-  outputMessage('Ваш ход', 480, 820);
+  outputMessage('Ваш ход', MOVE_MESSAGE_X, MOVE_MESSAGE_Y);
 }
 
 function move(c) {
