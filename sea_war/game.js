@@ -227,42 +227,19 @@ class Fleet {
       return [false, 'Корабль данной длины нельзя размещать.'];
     }
 
-    switch (length) {
-    case 1:
-      for (let i = 0; i < 4; i++) {
-        if (this.allShips[i] === undefined) {
-          this.allShips[i] = new Ship(startCellX, startCellY,
-            endCellX, endCellY, direction, 1);
+    function addByLength(length, obj) {
+      const arr = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
+      const BEGIN = arr.indexOf(length);
+      for (let i = BEGIN; i < BEGIN + 5 - length; i++) {
+        if (obj.allShips[i] === undefined) {
+          obj.allShips[i] = new Ship(startCellX, startCellY,
+            endCellX, endCellY, direction, length);
           break;
         }
       }
-      break;
-    case 2:
-      for (let i = 4; i < 7; i++) {
-        if (this.allShips[i] === undefined) {
-          this.allShips[i] = new Ship(startCellX, startCellY,
-            endCellX, endCellY, direction, 2);
-          break;
-        }
-      }
-      break;
-    case 3:
-      for (let i = 7; i < 9; i++) {
-        if (this.allShips[i] === undefined) {
-          this.allShips[i] = new Ship(startCellX, startCellY,
-            endCellX, endCellY, direction, 3);
-          break;
-        }
-      }
-      break;
-    case 4:
-      if (this.allShips[9] === undefined) {
-        this.allShips[9] = new Ship(startCellX, startCellY,
-          endCellX, endCellY, direction, 4);
-      }
-      break;
     }
-
+    addByLength(length, this);
+    
     if (direction) {
       for (let k = startCellX; k < endCellX + 1; k++) {
         this.coordinateShips[startCellY][k] = 1;
